@@ -21,3 +21,4 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh ec2-user@18.209.49.78 "cd /home/ec2-user/Nodejs-server-ran && git pull origin main && pm2 restart my-app && pm2 save"
+
