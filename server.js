@@ -15,10 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Default route
 app.get("/", (req, res) => {
-<<<<<<< HEAD
 res.send("Hello, World! - server running on Node.js");
-=======
-  res.send("Hello, World!");
 });
 
 // Define port with default fallback
@@ -34,6 +31,5 @@ app.listen(port, () => {
   } else {
     console.error("Server error:", err);
   }
->>>>>>> deb8e84 (Commit your changes before pulling)
 });
 
