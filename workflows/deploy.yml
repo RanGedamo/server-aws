@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy Node.js App
 
 on:
   push:
@@ -8,16 +8,17 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up SSH key
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy to EC2
-      run: |
-        ssh ec2-user@your-ec2-ip "cd /home/ec2-user/Nodejs-server-ran && git pull origin main && pm2 restart my-app"
+      - uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm run build
+      - name: Deploy to Server
+        run: |
+          ssh -i "your-key.pem" ec2-user@your-ec2-instance 'cd /path/to/your/app && git pull && pm2 restart app'
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SERVER_IP: ${{ secrets.SERVER_IP }}
