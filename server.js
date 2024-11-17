@@ -12,17 +12,13 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const productRoutes = require("./routes/productRoutes");
-app.use("/products", productRoutes);
-
-
-const authRoutes = require("./routes/userRouters");
+// Routes
+const authRoutes = require("./routes/authRoutes");
 app.use("/auth", authRoutes);
-
 
 // Default route
 app.get("/", (req, res) => {
-res.send("Hello, World! - server running on Node.js");
+  res.send("Hello, World! - server running on Node.js");
 });
 
 // Define port with default fallback
@@ -39,4 +35,3 @@ app.listen(port, () => {
     console.error("Server error:", err);
   }
 });
-
