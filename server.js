@@ -1,4 +1,3 @@
-//server.js //
 require("dotenv").config();
 require("./DB");
 
