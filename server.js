@@ -12,6 +12,14 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const productRoutes = require("./routes/productRoutes");
+app.use("/products", productRoutes);
+
+
+const authRoutes = require("./routes/userRouters");
+app.use("/auth", authRoutes);
+
+
 // Default route
 app.get("/", (req, res) => {
 res.send("Hello, World! - server running on Node.js");
