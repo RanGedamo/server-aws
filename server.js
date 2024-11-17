@@ -13,7 +13,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.get("/", (req, res) => {
-res.send("Hello, World!");
+res.send("Hello, World! - server running on Node.js");
 });
 
 app.listen(process.env.PORT||3030, () => {
