@@ -1,30 +1,34 @@
+// server/server.js
 require("dotenv").config();
 require("./DB");
 
-const cors = require("cors");
 const express = require("express");
+const cors = require("cors");
 const morgan = require("morgan");
+const cookieParser = require('cookie-parser');
+const { errorHandler } = require('./middleware/error.middleware');
+
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin:  'http://localhost:3000',
+  credentials: true
+}));
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Routes
-const authRoutes = require("./routes/authRoutes");
-app.use("/auth", authRoutes);
+const authRoutes = require("./routes/auth.routes");
+app.use("/api/auth", authRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.send("Hello, World! - server running on Node.js");
-});
+// Error Handler Middleware
+app.use(errorHandler);
 
-// Define port with default fallback
 const port = process.env.PORT || 3030;
 
-// Start server with error handling
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 }).on("error", (err) => {
