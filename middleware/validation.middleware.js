@@ -1,134 +1,203 @@
-// server/middleware/validation.middleware.js
-const { validationResult, check } = require('express-validator');
-const User = require('../models/user.model');
+// src/middleware/auth.middleware.js
 
-// פונקציית עזר לבדיקת תוצאות הוולידציה
-const validateRequest = (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
+exports.validateLogin = (req, res, next) => {
+  const { email, password } = req.body;
+
+  // Email validation
+  if (!email) {
     return res.status(400).json({
       status: 'error',
-      message: 'שגיאת וולידציה',
-      errors: errors.array().map(err => ({
-        field: err.param,
-        message: err.msg
-      }))
+      message: 'Email is required'
     });
   }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please enter a valid email address'
+    });
+  }
+
+  if (email.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Email must be less than 50 characters'
+    });
+  }
+
+  // Password validation
+  if (!password) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password is required'
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must be at least 6 characters long'
+    });
+  }
+
+  if (password.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must be less than 50 characters'
+    });
+  }
+
   next();
 };
 
-// וולידציה להרשמה
-exports.validateRegister = [
-  check('firstName')
-    .trim()
-    .notEmpty().withMessage('שם פרטי הוא שדה חובה')
-    .isLength({ min: 2 }).withMessage('שם פרטי חייב להכיל לפחות 2 תווים')
-    .matches(/^[A-Za-z\u0590-\u05FF\s]{2,}$/).withMessage('שם פרטי יכול להכיל רק אותיות'),
-  
-  check('lastName')
-    .trim()
-    .notEmpty().withMessage('שם משפחה הוא שדה חובה')
-    .isLength({ min: 2 }).withMessage('שם משפחה חייב להכיל לפחות 2 תווים')
-    .matches(/^[A-Za-z\u0590-\u05FF\s]{2,}$/).withMessage('שם משפחה יכול להכיל רק אותיות'),
-  
-  check('email')
-    .trim()
-    .notEmpty().withMessage('אימייל הוא שדה חובה')
-    .isEmail().withMessage('כתובת אימייל לא תקינה')
-    .normalizeEmail(),
-  
-  check('password')
-    .notEmpty().withMessage('סיסמה היא שדה חובה')
-    .isLength({ min: 8 }).withMessage('סיסמה חייבת להכיל לפחות 8 תווים')
-    .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-    .withMessage('הסיסמה חייבת להכיל אות גדולה, אות קטנה, מספר ותו מיוחד'),
-  
-  validateRequest
-];
+exports.validateRegister = (req, res, next) => {
+  const { firstName, lastName, email, password, confirmPassword } = req.body;
 
-// וולידציה להתחברות
-exports.validateLogin = [
-  // בדיקת אימייל
-  check('email')
-    .trim()
-    .notEmpty()
-    .withMessage('אימייל הוא שדה חובה')
-    .isEmail()
-    .withMessage('כתובת אימייל לא תקינה')
-    .normalizeEmail(),
+  // First Name validation
+  if (!firstName) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'First name is required'
+    });
+  }
 
-  // בדיקת סיסמה
-  check('password')
-    .notEmpty()
-    .withMessage('סיסמה היא שדה חובה'),
+  if (firstName.length < 2) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'First name must be at least 2 characters long'
+    });
+  }
 
-  validateRequest
-];
+  if (firstName.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'First name must be less than 50 characters'
+    });
+  }
 
-// וולידציה לעדכון פרטי משתמש
-exports.validateUpdateUser = [
-  // בדיקת שם פרטי אם נשלח
-  check('firstName')
-    .optional()
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('שם פרטי חייב להכיל לפחות 2 תווים')
-    .matches(/^[A-Za-z\u0590-\u05FF\s]{2,}$/)
-    .withMessage('שם פרטי יכול להכיל רק אותיות בעברית או באנגלית'),
+  if (!/^[a-zA-Z]+$/.test(firstName)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'First name can only contain letters and spaces, and must be in English'
+    });
+  }
 
-  // בדיקת שם משפחה אם נשלח
-  check('lastName')
-    .optional()
-    .trim()
-    .isLength({ min: 2 })
-    .withMessage('שם משפחה חייב להכיל לפחות 2 תווים')
-    .matches(/^[A-Za-z\u0590-\u05FF\s]{2,}$/)
-    .withMessage('שם משפחה יכול להכיל רק אותיות בעברית או באנגלית'),
+  // Last Name validation
+  if (!lastName) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Last name is required'
+    });
+  }
 
-  // בדיקת סיסמה אם נשלחה
-  check('password')
-    .optional()
-    .isLength({ min: 8 })
-    .withMessage('סיסמה חייבת להכיל לפחות 8 תווים')
-    .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-    .withMessage('הסיסמה חייבת להכיל אות גדולה, אות קטנה, מספר ותו מיוחד'),
+  if (lastName.length < 2) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Last name must be at least 2 characters long'
+    });
+  }
 
-  validateRequest
-];
+  if (lastName.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Last name must be less than 50 characters'
+    });
+  }
 
-// וולידציה לאיפוס סיסמה
-exports.validateResetPassword = [
-  check('email')
-    .trim()
-    .notEmpty()
-    .withMessage('אימייל הוא שדה חובה')
-    .isEmail()
-    .withMessage('כתובת אימייל לא תקינה')
-    .normalizeEmail(),
-    
-  validateRequest
-];
+  if (!/^[a-zA-Z]+$/.test(lastName)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Last name can only contain letters and spaces, and must be in English'
+    });
+  }
 
-// וולידציה לשינוי סיסמה
-exports.validateChangePassword = [
-  check('currentPassword')
-    .notEmpty()
-    .withMessage('סיסמה נוכחית היא שדה חובה'),
+  // Email validation
+  if (!email) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Email is required'
+    });
+  }
 
-  check('newPassword')
-    .notEmpty()
-    .withMessage('סיסמה חדשה היא שדה חובה')
-    .isLength({ min: 8 })
-    .withMessage('סיסמה חייבת להכיל לפחות 8 תווים')
-    .matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-    .withMessage('הסיסמה חייבת להכיל אות גדולה, אות קטנה, מספר ותו מיוחד')
-    .custom((value, { req }) => {
-      if (value === req.body.currentPassword) {
-        throw new Error('הסיסמה החדשה חייבת להיות שונה מהסיסמה הנוכחית');
-      }
-      return true;
-    }),
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please enter a valid email address'
+    });
+  }
 
-  validateRequest
-];
+  if (email.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Email must be less than 50 characters'
+    });
+  }
+
+  // Password validation
+  if (!password) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password is required'
+    });
+  }
+
+  if (password.length < 6) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must be at least 6 characters long'
+    });
+  }
+
+  if (password.length > 50) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must be less than 50 characters'
+    });
+  }
+
+  // Complex password validation
+  const passwordChecks = {
+    hasUpper: /[A-Z]/.test(password),
+    hasLower: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+    hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  };
+
+  if (!(passwordChecks.hasUpper && passwordChecks.hasLower)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must contain both uppercase and lowercase letters'
+    });
+  }
+
+  if (!passwordChecks.hasNumber) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must contain at least one number'
+    });
+  }
+
+  if (!passwordChecks.hasSpecial) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Password must contain at least one special character'
+    });
+  }
+
+  // Confirm Password validation
+  if (!confirmPassword) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Please confirm your password'
+    });
+  }
+
+  if (confirmPassword !== password) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Passwords do not match'
+    });
+  }
+
+  next();
+};

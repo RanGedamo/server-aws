@@ -30,7 +30,7 @@ exports.register = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         status: 'error',
-        message: 'משתמש עם אימייל זה כבר קיים במערכת'
+        message: 'Email is already registered'      
       });
     }
 
@@ -63,7 +63,7 @@ exports.register = async (req, res) => {
     // שליחת תשובה למשתמש
     res.status(201).json({
       status: 'success',
-      message: 'משתמש נרשם בהצלחה',
+      message: 'Registration successful',
       user: {
         id: user._id,
         firstName: user.firstName,
@@ -92,7 +92,7 @@ exports.login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         status: 'error',
-        message: 'אימייל או סיסמה שגויים'
+        message: 'Incorrect email or password'
       });
     }
 
@@ -101,7 +101,7 @@ exports.login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         status: 'error',
-        message: 'אימייל או סיסמה שגויים'
+        message: 'Incorrect email or password'
       });
     }
 
@@ -143,6 +143,8 @@ exports.login = async (req, res) => {
 
 // התנתקות
 exports.logout = async (req, res) => {
+  console.log(req.user.id);
+  
   try {
     // מחיקת refresh token מהדאטהבייס
     const user = await User.findById(req.user.id);
@@ -150,10 +152,13 @@ exports.logout = async (req, res) => {
       user.refreshToken = undefined;
       await user.save();
     }
-
-    // מחיקת הקוקי
-    res.clearCookie('refreshToken');
-
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'strict',
+      path: '/'
+    });
+    
     res.json({
       status: 'success',
       message: 'התנתקת בהצלחה'

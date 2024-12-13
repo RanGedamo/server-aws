@@ -1,16 +1,17 @@
-# POST http://localhost:3030/api/auth/register
-# Content-Type: application/json
-
-# {
-#   "firstName": "ישראל",
-#   "lastName": "ישראלי",
-#   "email": "issraasafsesl@example.com",
-#   "password": "Password123!"
-# }
-POST http://localhost:3030/api/auth/login
+POST http://localhost:3030/api/auth/register
 Content-Type: application/json
 
 {
+  "firstName": "israel",
+  "lastName": "ישראלי",
   "email": "issraasafsesl@example.com",
-  "password": "Password123!"
+  "password": "Password123!",
+  "confirmPassword": "Password123!"
 }
+# POST http://localhost:3030/api/auth/login
+# Content-Type: application/json
+
+# {
+#   "email": "issraasafsesl@example.com",
+#   "password": "Password123!"
+# }

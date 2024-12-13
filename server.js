@@ -25,7 +25,7 @@ const authRoutes = require("./routes/auth.routes");
 app.use("/api/auth", authRoutes);
 
 // Error Handler Middleware
-app.use(errorHandler);
+// app.use(errorHandler);
 
 const port = process.env.PORT || 3030;
 
